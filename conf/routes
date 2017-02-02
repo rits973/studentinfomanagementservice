@@ -16,3 +16,5 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 
 GET   /home                        controllers.StudentController.homePage()
+GET   /sign-up                     controllers.StudentController.signUpPage()
+POST  /process-sign-up             controllers.StudentController.processSignUp()

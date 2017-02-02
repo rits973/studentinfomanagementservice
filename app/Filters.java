@@ -1,4 +1,4 @@
-import javax.inject.*;
+/*import javax.inject.*;
 import play.*;
 import play.mvc.EssentialFilter;
 import play.http.HttpFilters;
@@ -6,7 +6,7 @@ import play.mvc.*;
 
 import filters.ExampleFilter;
 
-/**
+*//**
  * This class configures filters that run on every request. This
  * class is queried by Play to get a list of filters.
  *
@@ -14,17 +14,17 @@ import filters.ExampleFilter;
  * <code>Filters</code> that is placed the root package. You can load filters
  * from a different class by adding a `play.http.filters` setting to
  * the <code>application.conf</code> configuration file.
- */
+ *//*
 @Singleton
 public class Filters implements HttpFilters {
 
     private final Environment env;
     private final EssentialFilter exampleFilter;
 
-    /**
+    *//**
      * @param env Basic environment settings for the current application.
      * @param exampleFilter A demonstration filter that adds a header to
-     */
+     *//*
     @Inject
     public Filters(Environment env, ExampleFilter exampleFilter) {
         this.env = env;
@@ -43,4 +43,27 @@ public class Filters implements HttpFilters {
       }
     }
 
+}*/
+import javax.inject.Inject;
+
+import play.filters.csrf.CSRFFilter;
+import play.http.HttpFilters;
+import play.mvc.EssentialFilter;
+
+public class Filters implements HttpFilters {
+
+    private CSRFFilter csrfFilter;
+
+    @Inject
+    public Filters(
+        CSRFFilter csrfFilter) {
+        this.csrfFilter = csrfFilter;
+    }
+
+    @Override
+    public EssentialFilter[] filters() {
+        return new EssentialFilter[] {
+            csrfFilter.asJava()
+        };
+    }
 }
