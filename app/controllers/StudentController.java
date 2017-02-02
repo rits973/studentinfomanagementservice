@@ -14,7 +14,8 @@ public class StudentController extends Controller{
 	
 	@AddCSRFToken
 	public Result signUpPage(){
-		return ok(views.html.student.student_signup.render());
+		//return ok(views.html.student.student_signup.render());
+		return ok(views.html.student.publicdashboard.render());
 	}
 	
 	@RequireCSRFCheck
