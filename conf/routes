@@ -3,7 +3,7 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
+#GET     /                           controllers.HomeController.index
 # An example controller showing how to use dependency injection
 GET     /count                      controllers.CountController.count
 # An example controller showing how to write asynchronous code
@@ -15,6 +15,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 
 
-GET   /home                        controllers.StudentController.homePage()
-GET   /sign-up                     controllers.StudentController.signUpPage()
-POST  /process-sign-up             controllers.StudentController.processSignUp()
+GET   /                                            controllers.StudentController.homePage()
+GET   /sign-up                                     controllers.StudentController.signUpPage()
+POST  /student/process-sign-up                     controllers.StudentController.processSignUp()
+GET   /student/login-page                          controllers.StudentController.getLoginPage()

@@ -11,3 +11,8 @@ libraryDependencies ++= Seq(
   cache,
   javaWs
 )
+libraryDependencies += evolutions
+libraryDependencies += filters
+routesGenerator := InjectedRoutesGenerator
+
+libraryDependencies += "org.postgresql" % "postgresql" % "9.3-1100-jdbc41"

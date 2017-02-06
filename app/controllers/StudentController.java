@@ -9,13 +9,13 @@ import play.mvc.Result;
 public class StudentController extends Controller{
 	
 	public Result homePage(){
-		return redirect(routes.StudentController.signUpPage());
+		return ok(views.html.student.publicdashboard.render());
 	}
 	
 	@AddCSRFToken
 	public Result signUpPage(){
-		//return ok(views.html.student.student_signup.render());
-		return ok(views.html.student.publicdashboard.render());
+		return ok(views.html.student.student_signup.render());
+		
 	}
 	
 	@RequireCSRFCheck
@@ -23,5 +23,9 @@ public class StudentController extends Controller{
 		Logger.info("Request cookies"+request().hasHeader("PLAY_SESSION"));
 		Logger.info("Request header detail"+request()._underlyingHeader());
 		return ok("sign up completed");
+	}
+	
+	public Result getLoginPage(){
+		return ok(views.html.student.student_login.render());
 	}
 }
