@@ -1,28 +1,10 @@
 package com.thrymr.modules;
 
-import javax.inject.Inject;
+public class CustomFilters{
 
-import play.Logger;
-import play.filters.cors.CORSFilter;
-import play.http.HttpFilters;
-import play.mvc.EssentialAction;
-import play.mvc.EssentialFilter;
 
-public class CustomFilters extends EssentialFilter implements HttpFilters {
 
-	@Override
-	public EssentialFilter[] filters() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public EssentialAction apply(EssentialAction next) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-    /*@Inject
+	/*@Inject
     private CORSFilter corsFilter;
 
 
@@ -30,7 +12,7 @@ public class CustomFilters extends EssentialFilter implements HttpFilters {
     public EssentialAction apply(EssentialAction next) {
     	Logger.info("---Filter applied---");
         return corsFilter.asJava().apply(next);
-        
+
     }
 
     @Override
@@ -42,4 +24,4 @@ public class CustomFilters extends EssentialFilter implements HttpFilters {
         return result;
     }*/
 }
-	   
+
