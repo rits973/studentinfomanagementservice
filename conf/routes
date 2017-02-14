@@ -19,3 +19,6 @@ GET   /                                            controllers.StudentController
 GET   /sign-up                                     controllers.StudentController.signUpPage()
 POST  /student/process-sign-up                     controllers.StudentController.processSignUp()
 GET   /student/login-page                          controllers.StudentController.getLoginPage()
+POST  /student/process-login                       controllers.StudentController.processLogin()
+GET  /student/get-dashboard                       controllers.StudentController.getStudentDashBoard()
+GET  /student/process-logout                       controllers.StudentController.processLogout()

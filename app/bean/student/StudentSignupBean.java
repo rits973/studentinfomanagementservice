@@ -2,6 +2,8 @@ package bean.student;
 
 import java.io.Serializable;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class StudentSignupBean implements Serializable{
 
 
@@ -18,6 +20,23 @@ public class StudentSignupBean implements Serializable{
 	public String email;
 
 	public String password;
+
+
+
+
+	public String getLoginEmail() {
+		return this.email;
+	}
+	public String getPassword() {
+		return this.password;
+	}
+	public Boolean matchPassword(final String uPassword) {
+		if (BCrypt.checkpw(this.getPassword(), uPassword)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 
 }
