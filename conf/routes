@@ -22,3 +22,9 @@ GET   /student/login-page                          controllers.StudentController
 POST  /student/process-login                       controllers.StudentController.processLogin()
 GET  /student/get-dashboard                       controllers.StudentController.getStudentDashBoard()
 GET  /student/process-logout                       controllers.StudentController.processLogout()
+
+#GET  /say-hello/:message                                    controllers.Application.sayHello(message:String)
+
+GET      /index                                         controllers.Application.index()
+GET     /pingzs                                         controllers.Application.pingJs()
+GET     /pingWs                                         controllers.Application.pingWs()
