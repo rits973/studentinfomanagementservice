@@ -17,10 +17,10 @@ import scala.concurrent.ExecutionContextExecutor;
  * asynchronously delay sending a response for 1 second.
  *
  * @param actorSystem We need the {@link ActorSystem}'s
- * {@link Scheduler} to run code after a delay.
+ * {@link DoSomethingScheduler} to run code after a delay.
  * @param exec We need a Java {@link Executor} to apply the result
  * of the {@link CompletableFuture} and a Scala
- * {@link ExecutionContext} so we can use the Akka {@link Scheduler}.
+ * {@link ExecutionContext} so we can use the Akka {@link DoSomethingScheduler}.
  * An {@link ExecutionContextExecutor} implements both interfaces.
  */
 @Singleton

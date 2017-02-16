@@ -7,14 +7,14 @@ import play.Logger;
 import play.api.inject.ApplicationLifecycle;
 
 
-	@Singleton
-	public class OnStartup {
+@Singleton
+public class OnStartup {
 
-	    @Inject
-	    public OnStartup(ApplicationLifecycle application) {
-	    	Logger.info("Application start First time");
-	    	
-	        
-	    }
+	@Inject
+	public OnStartup(final ApplicationLifecycle application) {
+		Logger.info("Application start First time"+application);
+
 	}
+
+}
 

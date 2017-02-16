@@ -15,11 +15,11 @@
      * Get an `Html` object by calling the built-in Play welcome
      * template and passing a `String` message.
      *@
-    @play20.welcome(message, style = "Java")
+    @*@play20.welcome(message, style = "Java")*@
     
     <strong>Stats</strong><br>
     <div id="ping"></div>
-
-   <script type="text/javascript" charset="utf-8" src="@routes.Application.pingJs()"></script>
+   <script src="@routes.Assets.versioned("ubusina/js/jquery-2.1.1.js")"></script>
+   <script type="text/javascript" charset="utf-8" src="routes.Application.pingJs()"></script>
 
 }

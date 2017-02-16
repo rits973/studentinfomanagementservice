@@ -6,7 +6,10 @@ public class OnStartupModule extends AbstractModule{
 
 	@Override
 	protected void configure() {
-		 bind(OnStartup.class).asEagerSingleton();
+		this.bind(OnStartup.class).asEagerSingleton();
+		this.bind(DoSomethingScheduler.class).asEagerSingleton();
+
 	}
+
 
 }

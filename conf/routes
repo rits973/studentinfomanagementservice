@@ -25,6 +25,6 @@ GET  /student/process-logout                       controllers.StudentController
 
 #GET  /say-hello/:message                                    controllers.Application.sayHello(message:String)
 
-GET      /index                                         controllers.Application.index()
-GET     /pingzs                                         controllers.Application.pingJs()
-GET     /pingWs                                         controllers.Application.pingWs()
+#GET      /index                                         controllers.Application.index()
+#GET     /pingzs                                         controllers.Application.pingJs()
+#GET     /pingWs                                         controllers.Application.pingWs()
