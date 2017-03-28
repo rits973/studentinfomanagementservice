@@ -1,168 +1,102 @@
 package controllers;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.stream.Materializer;
-import akka.stream.javadsl.Flow;
 import play.mvc.Controller;
-import play.mvc.WebSocket;
+import play.mvc.Result;
 
+public class ApplicationController extends Controller{
+	private Materializer materializer;
+	private ActorSystem actorSystem;
+	private ActorRef userParentActor;
 
-/*public class Application extends Controller {
-	@Singleton
-
-	final ActorRef helloActor;
-
-	@Inject public Application(final ActorSystem system) {
-		this.helloActor = system.actorOf(HelloActor.props);
+	public Result getIndex(){
+		return ok(views.html.index.render(""));
 	}
 
-	public CompletionStage<Result> sayHello(final String name) {
-		return FutureConverters.toJava(ask(this.helloActor, new SayHello(name), 1000))
-				.thenApply(response -> ok((String) response));
-	}
-}
-
-
-
-
-
-
-
-	public LegacyWebSocket<JsonNode> pingWs() {
-		final Http.Session session = session();
-		return new LegacyWebSocket<JsonNode>() {
-			// Called when the Websocket Handshake is done.
-			@Override
-			public void onReady(final WebSocket.In<JsonNode> in, final WebSocket.Out<JsonNode> out){
-
-				// Join the chat room.
-				try {
-					AgrogoChat.join(id,in, out);
-				} catch (final Exception ex) {
-					ex.printStackTrace();
-				}
-			}
-		};
-	}
-
-	public  Result pingJs() {
+	public Result pingJs(){
 		return ok(views.js.js.ping.render());
 	}
 
-	public Result index() {
-		return ok(views.html.index.render(""));
-	}
-}*/
 
 
-
-
-public class ApplicationController extends Controller {
-	@Inject
-	private Materializer materializer;
-	private final ActorRef chatSocketRouter;
-
-	@Inject
-	public ApplicationController(@Named("chatSocketRouter") final ActorRef chatInjectedActor) {
-		this.chatSocketRouter = chatInjectedActor;
-	}
-
-
-
-
-	public WebSocket socket() {
-		return WebSocket.Text.accept(requestHeader -> {
-			final Flow<String, String, ?> flow = Flow.create()
-					.map(s -> s.toUpperCase());
-			return flow;
+	/*public WebSocket socket() {
+		return WebSocket.Json.acceptOrResult(request -> {
+			final CompletionStage<Flow<JsonNode, JsonNode, NotUsed>> future = this.wsFutureFlow(request);
+			final CompletionStage<Either<Result, Flow<JsonNode, JsonNode, ?>>> stage = future.thenApplyAsync(Either::Right);
+			//MyWebSocketActor.join(in,out);
+			return stage.exceptionally(this::logException);
 		});
 	}
+	public Either<Result, Flow<JsonNode, JsonNode, ?>> logException(final Throwable throwable) {
+		final Result result = Results.internalServerError("error");
+		return Either.Left(result);
+	}
 
+	public CompletionStage<Flow<JsonNode, JsonNode, NotUsed>> wsFutureFlow(final Http.RequestHeader request) {
+		// create an actor ref source and associated publisher for sink
+		final Pair<ActorRef, Publisher<JsonNode>> pair = this.createWebSocketConnections();
+		final ActorRef webSocketOut = pair.first();
+		final Publisher<JsonNode> webSocketIn = pair.second();
 
+		final String id = String.valueOf(request._underlyingHeader().id());
+		// Create a user actor off the request id and attach it to the source
+		final CompletionStage<ActorRef> userActorFuture = MyWebSocketActor.create(id, webSocketOut);
 
+		// Once we have an actor available, create a flow...
+		final CompletionStage<Flow<JsonNode, JsonNode, NotUsed>> stage = userActorFuture
+				.thenApplyAsync(userActor -> this.createWebSocketFlow(webSocketIn, userActor));
 
+		return stage;
+	}
 
+	public CompletionStage<ActorRef> createUserActor(final String id, final ActorRef webSocketOut) {
+		// Use guice assisted injection to instantiate and configure the child actor.
+		final long timeoutMillis = 100L;
+		return FutureConverters.toJava(
+				ask(this.userParentActor, new MyWebSocketActor.Create(id, webSocketOut), timeoutMillis)
+				).thenApply(stageObj -> (ActorRef) stageObj);
+	}
 
+	public Pair<ActorRef, Publisher<JsonNode>> createWebSocketConnections() {
+		// Creates a source to be materialized as an actor reference.
 
+		// Creating a source can be done through various means, but here we want
+		// the source exposed as an actor so we can send it messages from other
+		// actors.
+		final Source<JsonNode, ActorRef> source = Source.actorRef(10, OverflowStrategy.dropTail());
 
+		// Creates a sink to be materialized as a publisher.  Fanout is false as we only want
+		// a single subscriber here.
+		final Sink<JsonNode, Publisher<JsonNode>> sink = Sink.asPublisher(AsPublisher.WITHOUT_FANOUT);
 
+		// Connect the source and sink into a flow, telling it to keep the materialized values,
+		// and then kicks the flow into existence.
+		final Pair<ActorRef, Publisher<JsonNode>> pair = source.toMat(sink, Keep.both()).run(this.materializer);
+		return pair;
+	}
+	public Flow<JsonNode, JsonNode, NotUsed> createWebSocketFlow(final Publisher<JsonNode> webSocketIn, final ActorRef userActor) {
+		// http://doc.akka.io/docs/akka/current/scala/stream/stream-flows-and-basics.html#stream-materialization
+		// http://doc.akka.io/docs/akka/current/scala/stream/stream-integrations.html#integrating-with-actors
 
+		// source is what comes in: browser ws events -> play -> publisher -> userActor
+		// sink is what comes out:  userActor -> websocketOut -> play -> browser ws events
+		final Sink<JsonNode, NotUsed> sink = Sink.actorRef(userActor, new Status.Success("success"));
+		final Source<JsonNode, NotUsed> source = Source.fromPublisher(webSocketIn);
+		final Flow<JsonNode, JsonNode, NotUsed> flow = Flow.fromSinkAndSource(sink, source);
 
+		// Unhook the user actor when the websocket flow terminates
+		// http://doc.akka.io/docs/akka/current/scala/stream/stages-overview.html#watchTermination
+		return flow.watchTermination((ignore, termination) -> {
+			termination.whenComplete((done, throwable) -> {
+				MyWebSocketActor.join(webSocketIn, userActor);
+				this.actorSystem.stop(userActor);
+			});
 
-
-
-
-
-
-
-
-	/*public WebSocket chatSocket() {
-
-		return WebSocket.Json.acceptOrResult(request -> {
-
-			// Create a function to be run when we initialise a flow.
-			// A flow basically links actors together.
-			final AbstractFunction1<ActorRef, Props> getWebSocketActor = new AbstractFunction1<ActorRef, Props>() {
-
-				@Override
-				public Props apply(final ActorRef arg0) {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				@Override
-				public Props apply(final ActorRef connectionProperties) {
-
-					// We use the ActorRef provided in the param above to make some properties.
-					// An ActorRef is a fancy word for thread reference.
-					// The WebSocketActor manages the web socket connection for one user.
-					// WebSocketActor.props() means "make one thread (from the WebSocketActor) and return the properties on how to reference it".
-					// The resulting Props basically state how to construct that thread.
-					final Props properties = ChatSocketActor.props(connectionProperties, Application.this.chatSocketRouter, userId);
-
-					// We can have many connections per user. So we need many ActorRefs (threads) per user. As you can see from the code below, we do exactly that. We have an object called
-					// chatSocketRouter which holds a Map of userIds -> connectionsThreads and we "tell"
-					// it a lightweight object (UserMessage) that is made up of this connecting user's ID and the connection.
-					// As stated above, Props are basically a way of describing an Actor, or dumbed-down, a thread.
-
-					// In this line, we are using the Props above to
-					// reference the ActorRef we've just created above
-					final ActorRef anotherUserDevice = actorSystem.actorOf(properties);
-					// Create a lightweight object...
-					final UserMessage routeThisUser = new UserMessage(userId, anotherUserDevice);
-					// ... to tell the thread that has our Map that we have a new connection
-					// from a user.
-					Application.this.chatSocketRouter.tell(routeThisUser, ActorRef.noSender());
-
-					// We return the properties to the thread that will be managing this user's connection
-					return properties;
-				}
-			};
-
-			final Flow<JsonNode, JsonNode, ?> jsonNodeFlow =
-					ActorFlow.<JsonNode, JsonNode>actorRef(getWebSocketActor,
-							100,
-							OverflowStrategy.dropTail(),
-							actorSystem,
-							this.materializer).asJava();
-
-			final F.Either<Result, Flow<JsonNode, JsonNode, ?>> right = F.Either.Right(jsonNodeFlow);
-			return CompletableFuture.completedFuture(right);
+			return NotUsed.getInstance();
 		});
 	}*/
-
-	// Return this whenever we want to reject a
-	// user from connecting to a websocket
-	/*private CompletionStage<F.Either<Result, Flow<JsonNode, JsonNode, ?>>> forbiddenResult(final String msg) {
-		final Result forbidden = Results.forbidden(msg);
-		final F.Either<Result, Flow<JsonNode, JsonNode, ?>> left = F.Either.Left(forbidden);
-		return CompletableFuture.completedFuture(left);
-	}
-	 */
-
-	// Make a chat websocket for a user
 
 
 }

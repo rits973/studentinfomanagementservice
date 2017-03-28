@@ -1,6 +1,10 @@
-import com.google.inject.AbstractModule;
 import java.time.Clock;
 
+import com.google.inject.AbstractModule;
+import com.thrymr.modules.OnStartup;
+
+import play.Logger;
+import play.libs.akka.AkkaGuiceSupport;
 import services.ApplicationTimer;
 import services.AtomicCounter;
 import services.Counter;
@@ -15,17 +19,24 @@ import services.Counter;
  * adding `play.modules.enabled` settings to the `application.conf`
  * configuration file.
  */
-public class Module extends AbstractModule {
+public class Module extends AbstractModule implements AkkaGuiceSupport{
 
-    @Override
-    public void configure() {
-        // Use the system clock as the default implementation of Clock
-        bind(Clock.class).toInstance(Clock.systemDefaultZone());
-        // Ask Guice to create an instance of ApplicationTimer when the
-        // application starts.
-        bind(ApplicationTimer.class).asEagerSingleton();
-        // Set AtomicCounter as the implementation for Counter.
-        bind(Counter.class).to(AtomicCounter.class);
-    }
+	@Override
+	public void configure() {
+		Logger.info("Old Module");
+		// Use the system clock as the default implementation of Clock
+		this.bind(Clock.class).toInstance(Clock.systemDefaultZone());
+		// Ask Guice to create an instance of ApplicationTimer when the
+		// application starts.
+		this.bind(ApplicationTimer.class).asEagerSingleton();
+		// Set AtomicCounter as the implementation for Counter.
+		this.bind(Counter.class).to(AtomicCounter.class);
+
+
+		//this.bindActor(DoSomethingActor.class, "do-something-actor");
+		//this.bind(DoSomethingScheduler.class).asEagerSingleton();
+
+		this.bind(OnStartup.class).asEagerSingleton();
+	}
 
 }

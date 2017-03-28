@@ -12,7 +12,7 @@ public class OnStartup {
 
 	@Inject
 	public OnStartup(final ApplicationLifecycle application) {
-		Logger.info("Application start First time"+application);
+		Logger.info("Application start First time "+application);
 
 	}
 
