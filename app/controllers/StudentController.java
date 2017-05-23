@@ -1,5 +1,9 @@
 package controllers;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import org.mindrot.jbcrypt.BCrypt;
@@ -65,6 +69,8 @@ public class StudentController extends Controller{
 				if(bean.matchPassword(user.password)) {
 					if(user.role.equals(Role.STUDENT)){
 						Logger.info("-----"+email);
+						user.secretChatToken = UUID.randomUUID().toString();
+						user.update();
 						session(Constants.AUTHENTICATED_USER_ID, user.id + "");
 						session(Constants.AUTHENTICATED_USER_ROLE, user.role + "");
 						return redirect(routes.StudentController.getStudentDashBoard());
@@ -82,10 +88,15 @@ public class StudentController extends Controller{
 	}
 
 	public Result getStudentDashBoard(){
-		return ok("You are Logged in student");
+		Logger.info("Session user Name");
+		return ok("You are Logged in as student :"+AppUser.find.byId(Long.parseLong(session().get("sId"))).fullName);
 	}
 	public Result processLogout(){
 		session().clear();
 		return ok("You are Logged out Successfully");
+	}
+	
+	public static AppUser getLoggedInUser(){
+		return AppUser.find.byId(Long.parseLong(session().get("sId")));
 	}
 }

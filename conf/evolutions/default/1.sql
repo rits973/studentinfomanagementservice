@@ -9,6 +9,7 @@ create table app_user (
   last_name                     varchar(255),
   full_name                     varchar(255),
   phone_number                  varchar(255),
+  secret_chat_token             varchar(255),
   email                         varchar(255),
   password                      TEXT,
   role                          varchar(7),

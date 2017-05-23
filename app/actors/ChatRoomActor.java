@@ -1,6 +1,3 @@
-/**
- * 
- */
 package actors;
 
 import static controllers.ChatController.publisher;

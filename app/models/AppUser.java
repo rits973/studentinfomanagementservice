@@ -17,6 +17,8 @@ public class AppUser extends BaseEntity {
 	public String fullName;
 
 	public String phoneNumber;
+	
+	public String secretChatToken;
 
 	@Email
 	@Column(unique = true)
